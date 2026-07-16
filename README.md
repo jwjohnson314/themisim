@@ -1,3 +1,5 @@
+![PyPI](https://img.shields.io/pypi/v/themisim)
+
 # THEMISim
 
 Similarity search over [THEMIS](https://themis.ssl.berkeley.edu) all-sky imager
