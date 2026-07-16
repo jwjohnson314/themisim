@@ -1,0 +1,35 @@
+name: release-pypi
+
+# Publish to PyPI via Trusted Publishing (OIDC) — no API token required.
+#
+# One-time setup on PyPI (https://pypi.org/manage/account/publishing/):
+#   Project name:   themisim
+#   Owner:          jwjohnson314
+#   Repository:     themisim
+#   Workflow name:  release-pypi.yml
+#   Environment:    pypi
+#
+# Then publishing is automatic: cut a GitHub Release and this workflow builds
+# the sdist + wheel and uploads them with signed provenance attestations.
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  pypi:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write        # required for OIDC trusted publishing
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build distributions
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

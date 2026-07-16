@@ -1,0 +1,31 @@
+# Build artifacts and large data — never commit (far over GitHub limits).
+/data/
+/weights/
+*.faiss
+*.f16.dat
+*.f16.npy
+*.parquet
+*.tar
+*.meta.json
+*.arrays.cache
+shards/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+
+# Sphinx docs build
+docs/_build/
+docs/generated/
+
+# Claude Code local config
+.claude/
