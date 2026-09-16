@@ -2,8 +2,8 @@
 
 :func:`visualize_results` takes the DataFrame returned by
 :func:`themisim.query.query` and lays the matched frames out in a grid
-with per-tile captions (site / time / score), the same way the Streamlit app
-shows its results.
+with per-tile captions (site / date / time / score), the same way the
+Streamlit app shows its results.
 
 The query DataFrame carries only ``site, datetime, score, source_cdf`` — not the
 pixels — so the visualizer fetches each result's source CDF (from a local
@@ -24,6 +24,49 @@ import pandas as pd
 from themisim.download import download_one
 from themisim.embed import _read_cdf, parse_cdf_filename
 from themisim.preprocess import normalize_masked
+
+
+#: Vertical room a three-line caption needs, in inches. Added to each row's
+#: height so the taller caption crops the whitespace rather than the images.
+CAPTION_HEIGHT_IN = 0.45
+
+
+def _tile_caption(site: str, datetime_str: str, score: float) -> str:
+    """Three-line tile caption: ``site + date``, ``time``, ``score``.
+
+    The date is not optional. Result sets routinely span years — the pilot
+    slices alone cover 2015 and 2024 — so a caption showing only ``04:59:09``
+    cannot distinguish two frames nine years apart, which is precisely the
+    comparison a similarity result invites the reader to make.
+
+    Split over three lines rather than crammed onto one: a tile is about two
+    inches wide, and ``fsmi 2024-03-25 04:59:09 UTC score 1.000`` on a single
+    line either overruns its neighbours or has to be shrunk to an unreadable
+    size. Stacking keeps every field at a legible weight.
+
+    ``datetime_str`` is the export format written by
+    :func:`themisim.export.time_ns_utc_iso` (``"%Y-%m-%d %H:%M:%S UTC"``); an
+    unrecognised string degrades to a two-line caption rather than raising,
+    since a caption is never worth failing a render over.
+    """
+    parts = str(datetime_str).split(" ")
+    date_str = parts[0] if parts and parts[0] else ""
+    clock = " ".join(parts[1:]).strip()
+
+    lines = [f"{site}  {date_str}".strip()]
+    if clock:
+        lines.append(clock)
+    lines.append(f"score {float(score):.3f}")
+    return "\n".join(lines)
+
+
+def _caption_fontsize(tile_size: float) -> float:
+    """Scale caption text with the tile, clamped to a readable range.
+
+    A fixed 8 pt is cramped on a small tile and lost on a large one; tying it
+    to ``tile_size`` keeps the caption proportionate at any figure size.
+    """
+    return max(7.0, min(11.0, 3.6 * float(tile_size)))
 
 
 def _parse_export_datetime(value: str) -> int:
@@ -133,8 +176,18 @@ def visualize_results(
 
     n = len(df)
     rows = (n + cols - 1) // cols
+    caption_fs = _caption_fontsize(tile_size)
+    # constrained_layout, not tight_layout: three-line captions and a suptitle
+    # together are exactly the case tight_layout mis-measures. With equal-aspect
+    # images it under-allocates inter-row space and the captions on the second
+    # and later rows get clipped by the images above them. constrained_layout
+    # reserves the title space explicitly, so the captions always fit.
     fig, axes = plt.subplots(
-        rows, cols, figsize=(cols * tile_size, rows * tile_size), squeeze=False
+        rows,
+        cols,
+        figsize=(cols * tile_size, rows * (tile_size + CAPTION_HEIGHT_IN)),
+        squeeze=False,
+        constrained_layout=True,
     )
     flat = axes.ravel()
 
@@ -155,13 +208,14 @@ def visualize_results(
 
         if frame is None:
             ax.text(0.5, 0.5, "frame\nunavailable", ha="center", va="center",
-                    fontsize=8, transform=ax.transAxes)
+                    fontsize=caption_fs, transform=ax.transAxes)
         else:
             ax.imshow(frame, cmap=cmap, vmin=0.0, vmax=1.0)
 
-        hhmmss = row["datetime"].split(" ")[1]
         ax.set_title(
-            f"{row['site']}  {hhmmss}\nscore {row['score']:.3f}", fontsize=8
+            _tile_caption(row["site"], row["datetime"], row["score"]),
+            fontsize=caption_fs,
+            linespacing=1.3,
         )
 
     for ax in flat[n:]:
@@ -169,5 +223,4 @@ def visualize_results(
 
     if title:
         fig.suptitle(title)
-    fig.tight_layout()
     return fig

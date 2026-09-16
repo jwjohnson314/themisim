@@ -33,6 +33,19 @@ From the command line
    themis-query --site fsmi --datetime 2015-03-18T06 --frame 412 \
        --artifacts data/artifacts --output results.csv
 
+Try it without the full archive
+-------------------------------
+
+The published index is built from the whole archive and is far too large to
+reproduce. To evaluate the software, build a *pilot index* instead — a pinned
+slice of the real archive that builds on a CPU laptop in minutes and reports its
+own retrieval quality::
+
+    themis-pilot --list
+    themis-pilot --spec small
+
+See :doc:`pilot` for what the slices cover and what the report proves.
+
 Build an index from scratch
 ---------------------------
 

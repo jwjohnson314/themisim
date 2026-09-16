@@ -1,0 +1,57 @@
+name: tests
+
+# Runs the offline test suite. Nothing here reaches the THEMIS archive, yet the
+# whole scientific path is exercised for real:
+#
+#   synthetic CDFs (written in the real on-disk format, both the legacy
+#   (N,256,256)+_epoch layout and the 2024+ (1,r,c,N)+_time one)
+#     -> HTTP download from a localhost server
+#     -> inventory -> CDF read -> preprocess -> SimCLR encoder
+#     -> fp16 shards -> concat -> OPQ-IVF-PQ train/add -> query
+#
+# plus the scale-guard branches (manifest batching, the training-sampler
+# reservoir, add chunking) with their constants shrunk so the code that only
+# fires on the full archive actually runs.
+#
+# The real-data path is a separate, manually triggered workflow (pilot.yml).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install
+        # CPU-only torch from PyTorch's own index: the default wheel drags in
+        # ~2.5 GB of CUDA libraries the runner will never use, and the tests
+        # only need the encoder stack to import.
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev]"
+
+      - name: Run tests
+        # `-m 'not pilot'` is the configured default; stated here so a reader of
+        # the workflow can see that the archive-dependent tests are excluded.
+        # The `slow` tests -- which run the encoder over synthetic frames and
+        # build a real FAISS index -- are deliberately NOT excluded: they are
+        # the ones that show the pipeline composes.
+        run: pytest -m "not pilot" --cov=themisim --cov-report=term-missing

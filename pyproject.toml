@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "themisim"
-version = "0.1.0"
+version = "0.2.0"
 description = "Similarity search over THEMIS all-sky imager imagery using SimCLR encoder features and a FAISS index"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -25,7 +25,11 @@ classifiers = [
 dependencies = [
     "torch>=2.0",
     "torchvision>=0.15",
-    "numpy>=1.24,<2",
+    # No upper bound. Nothing in this package needs numpy 1.x -- the suite
+    # passes on numpy 2 -- and an upper bound in a published package is
+    # contagious: it forces a downgrade of the user's whole array stack, or
+    # blocks the install once anything co-installed requires numpy >= 2.
+    "numpy>=1.25",
     "pandas>=2.0",
     "pyarrow>=11",
     "Pillow>=9.4",
@@ -33,11 +37,20 @@ dependencies = [
     # CPU FAISS is sufficient: the query path is CPU-only (the index is
     # memory-mapped and disk-paged). GPU users who already have a conda
     # faiss build can install with --no-deps to keep it.
-    "faiss-cpu>=1.8",
+    #
+    # >=1.9 is the numpy-2 floor, and it is the real reason numpy used to be
+    # capped here: faiss-cpu 1.8.0 is compiled against the numpy 1.x C ABI and
+    # dies on import under numpy 2 ("_ARRAY_API not found"), while 1.8.0.post1
+    # declares numpy<2 outright. Constraining faiss is the narrow fix; capping
+    # numpy was the broad one. Indexes written by 1.8.0 read back correctly
+    # under 1.9+, so raising the floor does not strand an existing index.
+    "faiss-cpu>=1.9",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.4", "pytest-cov>=4"]
+# matplotlib so the visualizer's caption/render test actually runs in CI
+# rather than skipping; it is otherwise only needed for the notebook extra.
+dev = ["pytest>=7.4", "pytest-cov>=4", "matplotlib>=3.7"]
 notebook = ["jupyter", "matplotlib"]
 docs = ["sphinx>=7", "furo>=2024.1"]
 
@@ -45,6 +58,8 @@ docs = ["sphinx>=7", "furo>=2024.1"]
 themis-download = "themisim.cli.download:main"
 themis-build-index = "themisim.cli.build_index:main"
 themis-query = "themisim.cli.query:main"
+themis-pilot = "themisim.cli.pilot:main"
+themis-benchmark = "themisim.cli.benchmark:main"
 
 [project.urls]
 Homepage = "https://github.com/jwjohnson314/themisim"
@@ -55,8 +70,21 @@ Issues = "https://github.com/jwjohnson314/themisim/issues"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+# The pilot spec registry and reference vectors are data, not code, and are
+# read at runtime by themisim.pilot / themisim.validate. Without this they
+# work from a git checkout and vanish from the wheel.
+[tool.setuptools.package-data]
+themisim = ["data/*.json", "data/*.npz"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-ra"
+# The default run is offline and takes seconds. Tests marked `pilot` download
+# real CDFs from the Berkeley archive and build a real index; run them with
+#   pytest -m pilot
+addopts = "-ra -m 'not pilot'"
 pythonpath = ["src"]
+markers = [
+    "pilot: builds a real pilot index; needs network and several minutes",
+    "slow: runs the real encoder over synthetic frames; tens of seconds",
+]

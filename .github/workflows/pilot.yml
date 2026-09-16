@@ -1,0 +1,49 @@
+name: pilot
+
+# Builds the `tiny` pilot index from the real THEMIS archive and runs the full
+# validation report. Manual only: it downloads ~1.2 GB from Berkeley and takes
+# roughly 15 minutes, which is too much for every push, and a hosted runner has
+# no business hammering a public science archive on a schedule.
+#
+# The point of having it at all is that a green run is direct, checkable
+# evidence that the whole pipeline -- download, CDF read, encode, concat, train,
+# query -- works from scratch on a machine nobody configured by hand.
+
+on:
+  workflow_dispatch:
+    inputs:
+      spec:
+        description: "Which pilot spec to build"
+        required: true
+        default: tiny
+        type: choice
+        options: [tiny, small]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -e .
+
+      - name: Build and validate the pilot index
+        # Exits non-zero if any calibrated threshold is missed.
+        run: themis-pilot --spec "${{ inputs.spec }}" --device cpu --num-workers 2
+
+      - name: Upload the validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pilot-report-${{ inputs.spec }}
+          path: data/pilot/${{ inputs.spec }}/artifacts/pilot_report.json
+          if-no-files-found: warn

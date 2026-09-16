@@ -12,15 +12,41 @@ Stage 8. The full path:
         -> keep top-`k` (default 24)
 
 Why this shape:
-  - FAISS-only top-k on the OPQ-PQ index has poor ranking on the FSMI 2015
-    pilot because adjacent 3-second frames are near-duplicates. The
-    prefilter+rerank pattern absorbs that: top-500 captures ~93 % of the
-    true top-10 (Stage 7 gate), and the exact rerank then puts them in
-    the right order.
+  - FAISS-only top-k on the OPQ-PQ index has poor ranking, because adjacent
+    3-second frames are near-duplicates and the PQ codes cannot separate them.
+    The prefilter+rerank pattern absorbs that. With `nprobe=64` and
+    diversification disabled, a prefilter of 500 places 93.7 % of the
+    *exhaustive* top-10 into the candidate pool; raising it to 1000 reaches
+    96.1 % and to 2000 reaches 97.3 %, while dropping it to 100 falls to
+    79.7 %.
+
+    That capture rate IS the recall@10 of the returned results, not merely an
+    upper bound on it. The rerank scores every candidate exactly, so a vector
+    in the global exact top-10 that reaches the pool has at most 9 vectors in
+    the whole database scoring above it, hence at most 9 candidates, and it
+    necessarily survives into the reranked top-10. The prefilter decides what
+    can be found; the rerank only orders it and cannot lose a captured hit.
+    (Measured over 500 queries against an exhaustive scan of the full
+    1,009,488,343-vector index; capture rate and recall@10 agreed to four
+    decimal places. See BENCHMARK.md.)
+
+  - Recall depends on the (nprobe, prefilter) PAIR, not on prefilter alone —
+    though prefilter dominates and nprobe saturates early. At nprobe=1,
+    prefilter=500 yields 80.6 % (0.131 below the default); from nprobe=8 to
+    nprobe=256 at prefilter=2000 recall moves by 0.0008, for 32x the cells
+    scanned. nprobe=8 is the knee, not the default 64.
   - Temporal diversification stops the result grid from being filled with
     24 nearly-identical frames from one substorm minute. ±30 s on a
     3-second cadence drops 19 of every 20 in-arc frames; the remainder
     fall through to the next-best distinct match.
+
+    NOTE this is deliberately destructive of recall as measured against an
+    exhaustive top-10: the frames it discards ARE in that top-10. At the
+    default `diversify_seconds=30`, recall@10 versus exhaustive search is
+    0.238, against 0.937 with it disabled (n=500, same queries). The 0.937
+    figure describes retrieval; diversification is a presentation choice
+    applied afterwards. Benchmarks must set `diversify_seconds=0` or they are
+    measuring the de-duplicator.
 
 Public surface:
     Hit                           — dataclass with everything render() needs
@@ -73,6 +99,16 @@ NS_PER_SECOND = 1_000_000_000
 # site-year) instead of dropping them to the recall-limited IVF path; only very
 # broad filters (e.g. a multi-site multi-year window) exceed it.
 DEFAULT_BRUTE_FORCE_MAX = 4_000_000
+
+# When a filtered subset is too large to score exactly we probe the IVF with an
+# IDSelector -- and that probe can come back completely empty, because the cells
+# nearest the query need not intersect a time-disjoint filter at all. Measured
+# on the full archive with a one-month, all-station filter and prefilter=500:
+# 59% of queries returned nothing at nprobe=1, 7% at the default nprobe=64, and
+# 1% even at nprobe=4096. Before falling back to an exact scan we retry once
+# with nprobe multiplied by this factor (capped at nlist), which is cheap
+# relative to reading gigabytes of vectors.
+RESTRICTED_NPROBE_ESCALATION = 16
 
 # Memory bound for the exact rerank: load/normalize/dot at most this many
 # candidate rows at a time so a large filtered subset doesn't materialize a
@@ -337,6 +373,16 @@ class SearchEngine:
         self.index = faiss.read_index(
             str(art / index_filename), faiss.IO_FLAG_MMAP
         )
+        # Checked before ntotal: an untrained index is also empty, and
+        # "untrained" is the diagnosis while "ntotal 0 != N" is only a symptom.
+        # In practice train_and_build_index always trains before writing, so
+        # this catches a hand-assembled or truncated index file rather than a
+        # pipeline bug -- which is exactly when a clear message earns its keep.
+        if not self.index.is_trained:
+            raise ValueError(
+                f"{art / index_filename} holds an untrained index; "
+                "rebuild it with themisim.index.train_and_build_index"
+            )
         if self.index.ntotal != total_n:
             raise ValueError(
                 f"index ntotal {self.index.ntotal} != memmap size {total_n}"
@@ -546,6 +592,38 @@ class SearchEngine:
         self._sel_refs = sels  # keep alive across index.search
         return sel
 
+    def _restricted_ivf_candidates(
+        self,
+        q: np.ndarray,
+        ranges: List[Tuple[int, int]],
+        *,
+        nprobe: int,
+        prefilter: int,
+    ) -> "np.ndarray | None":
+        """IVF candidates within `ranges`, or None if the probe found nothing.
+
+        Retries once at a much larger nprobe before giving up. Returning None
+        is the signal that the caller must fall back to exact scoring: an empty
+        candidate set here does not mean "no frames match the filter", it means
+        the probed cells missed a subset that does match.
+        """
+        sel = self._ranges_selector(ranges)
+        nlist = int(self._ivf.nlist)
+        attempts = [int(nprobe)]
+        escalated = min(nlist, int(nprobe) * RESTRICTED_NPROBE_ESCALATION)
+        if escalated > int(nprobe):
+            attempts.append(escalated)
+
+        for attempt in attempts:
+            self._ivf.nprobe = attempt
+            params = faiss.SearchParametersIVF(nprobe=attempt, sel=sel)
+            _scores, faiss_ids = self.index.search(q, prefilter, params=params)
+            candidate_ids = faiss_ids[0]
+            candidate_ids = candidate_ids[candidate_ids >= 0].astype(np.int64)
+            if candidate_ids.size:
+                return candidate_ids
+        return None
+
     def _exact_scores(self, candidate_ids: np.ndarray, q: np.ndarray) -> np.ndarray:
         """Exact-cosine score every candidate against the (already
         L2-normalized) query `q` (shape ``(1, d)``). Loads the candidate
@@ -650,18 +728,29 @@ class SearchEngine:
             else:
                 # Subset too large to score exactly: IVF restricted to the
                 # contiguous ranges via IDSelectorRange. Recall is best-effort
-                # here (the IVF cells track time); raising nprobe for restricted
-                # queries — selectivity-scaled — is the recall fix (option E).
-                self._ivf.nprobe = int(nprobe)
-                params = faiss.SearchParametersIVF(
-                    nprobe=int(nprobe), sel=self._ranges_selector(ranges)
+                # here, because the IVF cells track time.
+                restricted = self._restricted_ivf_candidates(
+                    q, ranges, nprobe=nprobe, prefilter=prefilter
                 )
-                _scores_faiss, faiss_ids = self.index.search(q, prefilter, params=params)
-                candidate_ids = faiss_ids[0]
-                candidate_ids = candidate_ids[candidate_ids >= 0].astype(np.int64)
-                if candidate_ids.size == 0:
-                    return []
-                exact_scores = self._exact_scores(candidate_ids, q)
+                if restricted is None:
+                    # The probe found nothing, but `ranges` is non-empty, so
+                    # frames matching the filter certainly exist. Returning []
+                    # here would be fast and wrong -- a user filtering to a
+                    # month would silently get no results at all while millions
+                    # of frames matched. Score the ranges exactly instead:
+                    # expensive (a sequential read of the whole subset) but
+                    # correct, and rare.
+                    logger.warning(
+                        "restricted IVF probe returned no candidates for %d ranges "
+                        "(%d frames) at nprobe up to %d; falling back to an exact "
+                        "scan of the filtered subset",
+                        len(ranges), total,
+                        min(int(self._ivf.nlist), int(nprobe) * RESTRICTED_NPROBE_ESCALATION),
+                    )
+                    candidate_ids, exact_scores = self._exact_scores_ranges(ranges, q)
+                else:
+                    candidate_ids = restricted
+                    exact_scores = self._exact_scores(candidate_ids, q)
 
         order = np.argsort(-exact_scores, kind="stable")
 

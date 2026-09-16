@@ -34,7 +34,7 @@ from themisim.export import (  # noqa: E402
 from themisim.query import query, resolve_global_id  # noqa: E402
 from themisim.search import Hit, SearchEngine  # noqa: E402
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "query",
@@ -45,6 +45,10 @@ __all__ = [
     "results_csv_filename",
     "download_archive",
     "build_index",
+    "build_pilot",
+    "list_pilots",
+    "validate_index",
+    "run_benchmark",
     "fetch_weights",
     "visualize_results",
     "__version__",
@@ -62,6 +66,18 @@ def __getattr__(name: str):
         from themisim import pipeline
 
         return getattr(pipeline, name)
+    if name in ("build_pilot", "list_pilots"):
+        from themisim import pilot
+
+        return getattr(pilot, name)
+    if name == "validate_index":
+        from themisim.validate import validate_index
+
+        return validate_index
+    if name == "run_benchmark":
+        from themisim.benchmark import run_benchmark
+
+        return run_benchmark
     if name == "fetch_weights":
         from themisim.weights import fetch_weights
 

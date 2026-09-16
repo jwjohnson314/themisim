@@ -9,6 +9,27 @@
 *.meta.json
 *.arrays.cache
 shards/
+# Default download cache visualize_results creates when no data_root is
+# given (viz.py: cache_dir or data_root or "themis-cdf-cache"). Holds
+# full-size CDFs, so it reaches gigabytes without anyone deciding to.
+/themis-cdf-cache/
+
+# Working material, not part of the release: the v0.2 runbook and any local
+# LaTeX compile scratch. Ignored rather than merely excluded from `git add`,
+# so a stray `git add -A` cannot pick them up.
+/v2-plan.md
+scripts/table-test.tex
+scripts/table-final.tex
+
+# Editor swap/backup files. A .swp for an open file is easy to sweep up with
+# `git add -A` and pointless to version.
+*.swp
+*.swo
+*~
+.*.sw[a-p]
+*.aux
+*.out
+*.synctex.gz
 
 # Python
 __pycache__/
