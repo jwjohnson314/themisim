@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import threading
+import weakref
 from pathlib import Path
 from typing import Dict, Optional, Tuple, Union
 
@@ -41,7 +42,16 @@ BrowseIndex = Dict[str, Dict[str, Dict[str, Tuple[int, int]]]]
 # Process-global caches so repeated query() calls in a notebook pay the
 # (multi-second) engine load and browse-index build only once per artifacts dir.
 _ENGINE_CACHE: Dict[str, SearchEngine] = {}
-_BROWSE_CACHE: "Dict[int, BrowseIndex]" = {}
+# Keyed by the engine object itself, weakly. An earlier version keyed on
+# ``id(engine)``, which is only unique while that engine is alive: once it was
+# collected CPython could hand the same address to a *different* engine over a
+# *different* artifacts directory, and the stale browse index would then resolve
+# (site, datetime, frame) to a global_id from the wrong archive. A
+# WeakKeyDictionary drops the entry when the engine goes away, so an address
+# can never be reused against a stale value.
+_BROWSE_CACHE: "weakref.WeakKeyDictionary[SearchEngine, BrowseIndex]" = (
+    weakref.WeakKeyDictionary()
+)
 _LOCK = threading.Lock()
 
 
@@ -83,12 +93,11 @@ def build_browse_index(engine: SearchEngine) -> BrowseIndex:
 
 
 def _browse_index_for(engine: SearchEngine) -> BrowseIndex:
-    key = id(engine)
     with _LOCK:
-        bi = _BROWSE_CACHE.get(key)
+        bi = _BROWSE_CACHE.get(engine)
         if bi is None:
             bi = build_browse_index(engine)
-            _BROWSE_CACHE[key] = bi
+            _BROWSE_CACHE[engine] = bi
         return bi
 
 

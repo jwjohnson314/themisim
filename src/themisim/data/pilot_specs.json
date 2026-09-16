@@ -1,0 +1,382 @@
+{
+  "tiny": {
+    "description": "Smallest slice that still trains the production OPQ-IVF-PQ factory without FAISS warnings: 10 hours across two geomagnetic storms (2015-03-18 St Patrick's Day, 2024-03-25 G4), two sites, two year-months, including 2024+ CDFs, consecutive hours, and partial hours.",
+    "nlist": 107,
+    "nprobe": 64,
+    "prefilter": 500,
+    "expected_vectors": 11457,
+    "thresholds": {
+      "exact_self_retrieval": 1.0,
+      "ivf_self_retrieval": 0.94,
+      "encoder_cosine_mean": 0.9999,
+      "encoder_cosine_min": 0.9999,
+      "recall_at_10": 0.94
+    },
+    "cdfs": [
+      {
+        "site": "fsmi",
+        "datetime": "2015031806",
+        "size_bytes": 116140663,
+        "sha256": "79f36bf44fdac0d4156a186d5ea389131d6ee820c977a8c12dfb5f198fba5216"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2015031807",
+        "size_bytes": 115175440,
+        "sha256": "3c18fb6fcd47e68f1462faca0da6fc0b30fab417a48f3253e89908cedbca87a0"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2024032503",
+        "size_bytes": 102549618,
+        "sha256": "93545317fd5a88c3ec5344c389fc82f207a29b9eb11e0e9de2ca6fd8669de4bc"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2024032506",
+        "size_bytes": 137553722,
+        "sha256": "02f51d9e690e98efe22bc5b9581172a3ef4bbc3dcd0f9eae24b44df9d3135b52"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2024032507",
+        "size_bytes": 135670469,
+        "sha256": "151bba6e8065727de4130fc75a4e5d60adecf04457c444c2be7ecbb3c0520bfe"
+      },
+      {
+        "site": "gill",
+        "datetime": "2015031807",
+        "size_bytes": 116060256,
+        "sha256": "f58989f2aaae91df344d94bb74c9235d7159a25cca79e0674f651edaf62587ba"
+      },
+      {
+        "site": "gill",
+        "datetime": "2015031808",
+        "size_bytes": 122218965,
+        "sha256": "f4b9607f8925a73e05ef71227c57df09e1fabf1d8abcec6421be3ff582a6971d"
+      },
+      {
+        "site": "gill",
+        "datetime": "2024032506",
+        "size_bytes": 134466284,
+        "sha256": "4ee5b1e1d459bdcf1a82baa4abaa911d365bb633a001d4f5a6be8949f61831af"
+      },
+      {
+        "site": "gill",
+        "datetime": "2024032507",
+        "size_bytes": 134760544,
+        "sha256": "45763209fcb9e4ce7c1ba2c2c5063312df7456714c5863d5959bf9223ef439d7"
+      },
+      {
+        "site": "gill",
+        "datetime": "2024032510",
+        "size_bytes": 110198376,
+        "sha256": "d13c0edd060e03544cfd3094f19cd041c823bc33f924451e720d103d0eb89014"
+      }
+    ]
+  },
+  "small": {
+    "description": "Reviewer-scale slice: 48 hours across two geomagnetic storms (2015-03-18 St Patrick's Day, 2024-03-25 G4) at four sites, spanning both THEMIS CDF layouts, with overlapping UT hours across sites so cross-station retrieval is possible.",
+    "nlist": 238,
+    "nprobe": 64,
+    "prefilter": 500,
+    "expected_vectors": 56955,
+    "thresholds": {
+      "exact_self_retrieval": 1.0,
+      "ivf_self_retrieval": 0.935,
+      "encoder_cosine_mean": 0.9999,
+      "encoder_cosine_min": 0.9999,
+      "recall_at_10": 0.935
+    },
+    "cdfs": [
+      {
+        "site": "fsmi",
+        "datetime": "2015031803",
+        "size_bytes": 117791306,
+        "sha256": "5de1ab273413b00e35cada84647a5e5cbb9d1b42c5e7bdb15bb7ba9a71b34796"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2015031804",
+        "size_bytes": 113475159,
+        "sha256": "325ef62837fb83e9083890b6ea3140b798498c8696bd06fdf6ee99e28e0561e0"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2015031805",
+        "size_bytes": 118105819,
+        "sha256": "23d6fae732956e113b98fd495fc6378db35c6e495bf1e2e94b2125d21f93bd58"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2015031806",
+        "size_bytes": 116140663,
+        "sha256": "79f36bf44fdac0d4156a186d5ea389131d6ee820c977a8c12dfb5f198fba5216"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2015031807",
+        "size_bytes": 115175440,
+        "sha256": "3c18fb6fcd47e68f1462faca0da6fc0b30fab417a48f3253e89908cedbca87a0"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2015031808",
+        "size_bytes": 112790638,
+        "sha256": "6c383bc6e815addd170e8e81b97eefba491edeec10c78074b475c54047e7d30a"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2015031809",
+        "size_bytes": 113977693,
+        "sha256": "b489fc7e218f0437badb7f6c837f00381e1a813f25bd5953620812dce85ab73a"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2015031810",
+        "size_bytes": 112989275,
+        "sha256": "667ee1c4e8117fe51b845ff00de091b69e9760466afbd5e63a7423764acd1ffa"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2024032503",
+        "size_bytes": 102549618,
+        "sha256": "93545317fd5a88c3ec5344c389fc82f207a29b9eb11e0e9de2ca6fd8669de4bc"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2024032504",
+        "size_bytes": 138033026,
+        "sha256": "04694adffdc828319682e4f384fafb3c220c88aef3cf5545a35b0fd993bf1801"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2024032505",
+        "size_bytes": 139146234,
+        "sha256": "2fb9b401c5172629e3de88502d2d6cb1be39debab705c66cddfbf9029fca938b"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2024032506",
+        "size_bytes": 137553722,
+        "sha256": "02f51d9e690e98efe22bc5b9581172a3ef4bbc3dcd0f9eae24b44df9d3135b52"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2024032507",
+        "size_bytes": 135670469,
+        "sha256": "151bba6e8065727de4130fc75a4e5d60adecf04457c444c2be7ecbb3c0520bfe"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2024032508",
+        "size_bytes": 135684634,
+        "sha256": "ad9315ad5a2ed9c20428112ea1d05fde8ebae53be71c42fa994366eb554ddd94"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2024032509",
+        "size_bytes": 137284483,
+        "sha256": "d5d1c1ee364e830aa3263dc763b0393e79884587884bbff16f2c7156eb83d971"
+      },
+      {
+        "site": "fsmi",
+        "datetime": "2024032510",
+        "size_bytes": 138033579,
+        "sha256": "b6601961e89e759784672ddca222493a41980a909dbd0c5e85cf81b4eef31cc6"
+      },
+      {
+        "site": "gill",
+        "datetime": "2015031806",
+        "size_bytes": 105378163,
+        "sha256": "ffca9ef84a766381fe869e56155c542713cf6e84d1f442d87668aaf27dc66553"
+      },
+      {
+        "site": "gill",
+        "datetime": "2015031807",
+        "size_bytes": 116060256,
+        "sha256": "f58989f2aaae91df344d94bb74c9235d7159a25cca79e0674f651edaf62587ba"
+      },
+      {
+        "site": "gill",
+        "datetime": "2015031808",
+        "size_bytes": 122218965,
+        "sha256": "f4b9607f8925a73e05ef71227c57df09e1fabf1d8abcec6421be3ff582a6971d"
+      },
+      {
+        "site": "gill",
+        "datetime": "2015031809",
+        "size_bytes": 118869279,
+        "sha256": "933c42828015772d421215f7485bcfc04e138084a69013afe254e8316f1c34db"
+      },
+      {
+        "site": "gill",
+        "datetime": "2015031810",
+        "size_bytes": 117279118,
+        "sha256": "60c016a78ce37ebb9c2411b3480d5514a725029a365c25115ee15382d99de42c"
+      },
+      {
+        "site": "gill",
+        "datetime": "2024032503",
+        "size_bytes": 138762741,
+        "sha256": "7cd48da69355a182c4c6683ae0e90a15c556bfbf8f4928446c3370bd252191c8"
+      },
+      {
+        "site": "gill",
+        "datetime": "2024032504",
+        "size_bytes": 138503164,
+        "sha256": "e84aa8fd6d137eb7548d5a965e94c70400a47961d28a571320ddcf4a977a9586"
+      },
+      {
+        "site": "gill",
+        "datetime": "2024032505",
+        "size_bytes": 137072041,
+        "sha256": "f7b987760fb3eb340d6b439bc4988faac22182015252f776575f2d6fc41d47ef"
+      },
+      {
+        "site": "gill",
+        "datetime": "2024032506",
+        "size_bytes": 134466284,
+        "sha256": "4ee5b1e1d459bdcf1a82baa4abaa911d365bb633a001d4f5a6be8949f61831af"
+      },
+      {
+        "site": "gill",
+        "datetime": "2024032507",
+        "size_bytes": 134760544,
+        "sha256": "45763209fcb9e4ce7c1ba2c2c5063312df7456714c5863d5959bf9223ef439d7"
+      },
+      {
+        "site": "gill",
+        "datetime": "2024032508",
+        "size_bytes": 137681576,
+        "sha256": "7d7d748816f20019633167009d1dccc9ef47b7f6dd1b6150f8f4152838cd1e28"
+      },
+      {
+        "site": "gill",
+        "datetime": "2024032509",
+        "size_bytes": 138185271,
+        "sha256": "cfda62fd3c42de0407b367c615b767070b034b3e29add05cc77fd1853eed0095"
+      },
+      {
+        "site": "gill",
+        "datetime": "2024032510",
+        "size_bytes": 110198376,
+        "sha256": "d13c0edd060e03544cfd3094f19cd041c823bc33f924451e720d103d0eb89014"
+      },
+      {
+        "site": "atha",
+        "datetime": "2015031803",
+        "size_bytes": 116671159,
+        "sha256": "70016ab43ca206c6630f19683d8e8aa881132000431309f7848f468c662804f5"
+      },
+      {
+        "site": "atha",
+        "datetime": "2015031804",
+        "size_bytes": 119115900,
+        "sha256": "08e83e4441a511f5a4404203c5f1cfc53c5b27c63e07f6b7f1af835dd6a3469a"
+      },
+      {
+        "site": "atha",
+        "datetime": "2015031805",
+        "size_bytes": 119455900,
+        "sha256": "ce9f7dc868dec95995337030e9d43f731554485e418c100452aeb27cd9914b18"
+      },
+      {
+        "site": "atha",
+        "datetime": "2015031806",
+        "size_bytes": 116132523,
+        "sha256": "6cc683d68ef474f35118776e84e8e40e93088711ca2d471e3ae459d78a64fd18"
+      },
+      {
+        "site": "atha",
+        "datetime": "2015031807",
+        "size_bytes": 120596015,
+        "sha256": "e08dbe4290b848feb87bb9b7bc83991b4f3326fc62d85d6948fca9f8fd7188ed"
+      },
+      {
+        "site": "atha",
+        "datetime": "2015031808",
+        "size_bytes": 124802603,
+        "sha256": "9bcffac0e1159143008950aa427f4c7b1f875b1e6d1e8bb1427fbc5cd79ff450"
+      },
+      {
+        "site": "atha",
+        "datetime": "2015031809",
+        "size_bytes": 119931659,
+        "sha256": "a232a024455a37c3baa8b92970e6d65ea306531229fca77fdad6329aa58e74dd"
+      },
+      {
+        "site": "atha",
+        "datetime": "2015031810",
+        "size_bytes": 119547942,
+        "sha256": "a1b7187ab3209c4aae1f4062047f7de610076b6e18c88a5ba4238aefc91be77b"
+      },
+      {
+        "site": "atha",
+        "datetime": "2024032505",
+        "size_bytes": 134524795,
+        "sha256": "acaa2ac5e9f51154762d62c24a78fbb95fb93f5143c582c619f201fc79190af9"
+      },
+      {
+        "site": "atha",
+        "datetime": "2024032506",
+        "size_bytes": 137906180,
+        "sha256": "b60e953c763c6e704295d0f85edecf5828a8a53cbbdcf857354e5ef073b252cb"
+      },
+      {
+        "site": "atha",
+        "datetime": "2024032507",
+        "size_bytes": 138154556,
+        "sha256": "fb37eeb2663e05a36cfa3be74aab1bb6b3168ca7c2974ea79cf428c6d89ca64c"
+      },
+      {
+        "site": "atha",
+        "datetime": "2024032508",
+        "size_bytes": 140885467,
+        "sha256": "3c3d02516b67d1ad835b168a0b17dc7d6962fb96b87563cb29718980d8ba9b19"
+      },
+      {
+        "site": "atha",
+        "datetime": "2024032509",
+        "size_bytes": 138307315,
+        "sha256": "7fa64f754d9bedfdbd10164b65d0242e7a083e551b2cb8a7558b951b3f4a9e90"
+      },
+      {
+        "site": "atha",
+        "datetime": "2024032510",
+        "size_bytes": 136141605,
+        "sha256": "289d9bb5383f83d7ad216ac1ae6187ee19eebc751d65ada1b439b12c40ee3cba"
+      },
+      {
+        "site": "inuv",
+        "datetime": "2015031805",
+        "size_bytes": 115651485,
+        "sha256": "dc94b77319b2f3535d8a0c9dd5b29a801d93a4a580ebff08bd06e348060dbefb"
+      },
+      {
+        "site": "inuv",
+        "datetime": "2015031806",
+        "size_bytes": 108693050,
+        "sha256": "aba0321f46d5de5a4420eede8cea66773443232a6c9d1f506ab204cebffefb50"
+      },
+      {
+        "site": "inuv",
+        "datetime": "2015031807",
+        "size_bytes": 104115734,
+        "sha256": "1864c645a2348443173f765d26b19260fb485a53ed4d10eac1f5325da1c43d7b"
+      },
+      {
+        "site": "inuv",
+        "datetime": "2024032506",
+        "size_bytes": 133723212,
+        "sha256": "81c9b0f553910e18c23936e4c81d6ac6aa849ba6e1055cd7fcc65ffec07784f4"
+      },
+      {
+        "site": "inuv",
+        "datetime": "2024032507",
+        "size_bytes": 133650040,
+        "sha256": "9a8550f266a3a789b6f64b3d8e134241327637bbe8fc98f72cc2c7a8e47a1fba"
+      }
+    ]
+  }
+}

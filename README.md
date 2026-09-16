@@ -13,14 +13,47 @@ This software does three things:
 3. **Query** the index by `(site, datetime, frame)`, returning a tidy
    `DataFrame`/CSV.
 
+## Architecture
+
+![THEMISim architecture: build, query and validate paths](https://raw.githubusercontent.com/jwjohnson314/themisim/main/architecture-with-caveat.png)
+
+Three lanes, corresponding to the three things above.
+
+**Build** crawls the Berkeley archive, embeds every 256×256 frame through a
+SimCLR-trained ResNet-18 — p1–p99 contrast stretch, circular mask, 224×224,
+green channel — into a 512-D vector, stitches the per-hour fp16 shards into one
+memmap in chronological order, and trains an `OPQ64_64,IVF{nlist}_HNSW32,PQ64x8`
+index on a stratified sample. That compresses each vector to about 64 bytes.
+
+**Artifacts** are the four files every query needs: the compressed index, the
+exact fp16 vectors, a manifest mapping `global_id` back to site / time / source
+CDF, and a shape-and-dtype header. Because `global_id` is the memmap row index
+and shards are concatenated in site-then-time order, each site occupies one
+contiguous block — the property the filtered-query fast path relies on.
+
+**Query** addresses a frame by `(site, hour, frame)` and reads its stored vector
+straight out of the memmap, so nothing is re-embedded and no GPU is needed. It
+pulls a coarse candidate pool from the compressed index, then rescores those
+candidates *exactly* in fp32. The approximate step decides what can be found;
+the exact step decides the order — which is why `prefilter` governs recall and
+`nprobe` barely does.
+
+**Validate** is the pilot path: a pinned slice of the real archive, run through
+the identical pipeline in minutes, reporting its own recall against exhaustive
+search. Read the caveat on the diagram carefully — a pilot index has far fewer
+IVF cells, so the same `nprobe` scans a much larger fraction of it, and pilot
+recall is an upper bound on archive recall rather than an estimate of it.
+
 ## Install
 
 ```bash
 pip install themisim
 ```
 
-`faiss-cpu` is pulled in as a dependency (the query path is CPU-only). If you
-already have a GPU `faiss` from conda, install with `--no-deps` to keep it.
+`faiss-cpu` (>= 1.9, the first release built against the NumPy 2 ABI) is pulled
+in as a dependency; the query path is CPU-only. If you already have a GPU
+`faiss` from conda, install with `--no-deps` to keep it — note that a conda
+`faiss` older than 1.9 also pins you to NumPy 1.x.
 A CUDA-enabled PyTorch makes index building much faster but is optional — every
 stage falls back to CPU.
 
@@ -51,6 +84,33 @@ Search parameters:
 | `prefilter` | 500 | FAISS candidates pulled before exact cosine rerank |
 | `nprobe` | 64 | IVF cells inspected per query |
 | `diversify_seconds` | 30 | drop near-duplicate frames within ±N s at the same site (0 disables) |
+
+**What `prefilter` buys.** The search pulls `prefilter` candidates from the
+compressed index, then rescores them *exactly* in fp32. Because the rerank is
+exact, the fraction of the true top-10 that reaches the candidate pool is also
+the recall@10 of the results: a genuine neighbour that reaches the pool cannot
+be displaced by a worse one. Measured over 500 queries against an exhaustive
+scan of the full 1,009,488,343-vector index, with `nprobe=64` and
+`diversify_seconds=0`:
+
+| `prefilter` | recall@10 vs exhaustive |
+|-------------|-------------------------|
+| 100 | 0.797 |
+| 500 (default) | 0.937 |
+| 1000 | 0.961 |
+| 2000 | 0.973 |
+
+Recall depends on the `(nprobe, prefilter)` pair rather than on `prefilter`
+alone, but `prefilter` dominates and `nprobe` saturates early: going from
+`nprobe=8` to `nprobe=256` at `prefilter=2000` gains **0.0008** for 32x the
+cells scanned, while dropping to `nprobe=1` costs 0.131.
+
+⚠️ Those figures require `diversify_seconds=0`. At the default of 30, recall@10
+against an exhaustive top-10 is **0.238** rather than 0.937 (same 500 queries) —
+by design, because the near-duplicate frames diversification removes *are* most
+of the exhaustive top-10. That is a
+presentation choice applied after retrieval, not a retrieval failure, but it
+means any recall benchmark must disable it. See [the performance report](https://jwjohnson314.github.io/themisim/benchmark.html).
 
 ### Bounding the result set: count vs. threshold
 
@@ -119,6 +179,67 @@ build_index("data/cdf", "data/artifacts",
 if interrupted (already-embedded hours are skipped). `--nlist auto` scales the
 IVF cell count to the dataset size.
 
+## Testing the software
+
+The full archive is ~1M CDFs and a full build is GPU-days. If you would like to 
+test THEMISim without committing to thr full build, you can build a **pilot
+index** — a pinned slice of the *real* archive that runs through exactly the
+same pipeline and then measures its own retrieval quality:
+
+```bash
+themis-pilot --list          # what is available and what it costs
+themis-pilot --spec small    # download, build, validate
+```
+
+| spec | CDFs | vectors | download | build (8 CPU threads) |
+|------|------|---------|----------|----------------------|
+| `tiny`  | 10 | 11,457 | 1.2 GB | 3 min |
+| `small` | 48 | 56,955 | 6.0 GB | 12 min |
+
+Build times are measured, not estimated, with the CDFs already on disk; add your
+download time (the archive serves ~17 MB/s on a good link, so roughly 1 min and
+6 min respectively). A GPU is not required — the encoder
+forward pass runs at ~90 frames/s on 8 CPU threads. The command is idempotent:
+downloads resume, already-embedded hours are skipped, and it is safe to re-run
+after a dropped connection.
+
+Each slice pins an explicit list of CDFs with each file's size and SHA-256, and
+reconstructs their URLs directly rather than crawling, so the inputs are
+identical for everyone regardless of how the archive's directory listings change.
+The slices are chosen to reach code a naive subset would miss: two storms
+(2015-03-18 and 2024-03-25), four sites, both THEMIS CDF layouts, overlapping UT
+hours so cross-station retrieval is possible, and partial hours with non-nominal
+frame counts.
+
+Every build writes `pilot_report.json` and exits non-zero if any calibrated
+threshold is missed. It reports recall **at the operating point users actually
+get** — `SearchEngine.search` pulls the top `prefilter` candidates from the
+compressed index and then rescores them exactly in fp32, so raw FAISS recall is
+not what anyone experiences. On the `tiny` slice raw FAISS recall@10 is ~0.44
+while the full pipeline reaches 0.94–1.00. The report shows both, sweeps
+`nprobe` and `prefilter` together (they interact), and states plainly what a
+pilot-scale index *cannot* demonstrate — most importantly that its recall is an
+upper bound on the full archive's, not an estimate of it.
+
+Everything else is offline. The test suite builds a working index from
+synthetic frames and queries it, so the whole pipeline can be verified without
+obtaining any THEMIS data:
+
+```bash
+pytest                    # full suite, no network
+pytest -m "not slow"      # skip the encoder/index-building tests
+pytest -m pilot           # plus a real tiny-slice build from the archive
+```
+
+`tests/test_end_to_end.py` writes THEMIS-format CDFs (both the legacy and the
+2024+ on-disk layouts), serves them over localhost, and runs the genuine chain —
+download → inventory → CDF read → preprocess → SimCLR encoder → shards → concat
+→ OPQ-IVF-PQ train/add → query — asserting that a frame retrieves itself at
+cosine 1.0 and that the exported table agrees with the manifest.
+
+See [the pilot documentation](https://jwjohnson314.github.io/themisim/pilot.html) for the full description of what is checked
+and what is out of reach at this scale.
+
 ## Model weights
 
 `fetch_weights()` downloads and SHA-256-verifies the ~44 MB SimCLR checkpoint
@@ -144,7 +265,7 @@ An artifacts directory contains `index.faiss`, `manifest.parquet`,
 
 ## License, data & citation
 
-The **code** in this repository is MIT-licensed — see [LICENSE](LICENSE).
+The **code** in this repository is MIT-licensed — see [LICENSE](https://github.com/jwjohnson314/themisim/blob/main/LICENSE).
 
 The assets this tool downloads carry their own terms, which you must honor when
 publishing results:

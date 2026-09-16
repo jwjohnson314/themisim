@@ -38,6 +38,22 @@ Building an index
    build_index
    fetch_weights
 
+Pilot indexes
+-------------
+
+A pilot is a small, pinned slice of the real archive that builds in minutes and
+reports its own retrieval quality, so the software can be assessed without the
+full ~100 TB archive. See :doc:`pilot`.
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   list_pilots
+   build_pilot
+   validate_index
+   run_benchmark
+
 Visualization
 -------------
 

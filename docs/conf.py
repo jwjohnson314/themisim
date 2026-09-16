@@ -24,7 +24,7 @@ try:  # prefer the installed distribution's version when available
 
     release = _dist_version("themisim")
 except Exception:  # not installed (e.g. building from a bare checkout)
-    release = "0.1.0"
+    release = "0.2.0"
 version = release
 
 # -- General configuration ---------------------------------------------------

@@ -1,0 +1,190 @@
+  [hardware] Intel(R) Core(TM) i9-9920X CPU @ 3.50GHz  (+0s)
+  [storage] {'index.faiss': 'SSD', 'vectors.f16.dat': 'HDD', 'manifest.parquet': 'HDD'}  (+11s)
+  [engine_loaded] 1,009,488,343 vectors in 2.2s  (+14s)
+  [latency_cold] median 417.2 ms  (+19s)
+  [latency_warm_same] median 130.1 ms (same 10 queries as cold)  (+21s)
+  [latency_warm] median 413.3 ms  (+44s)
+  [operating_point] nprobe=64 prefilter=500 div=0: warm median 118 ms, cold 110 ms  (+163s)
+  [operating_point] nprobe=64 prefilter=500 div=30: warm median 123 ms, cold 108 ms  (+163s)
+  [operating_point] nprobe=256 prefilter=1000 div=0: warm median 649 ms, cold 324 ms  (+163s)
+  [operating_point] nprobe=256 prefilter=1000 div=30: warm median 303 ms, cold 324 ms  (+163s)
+  [breakdown] probe 116.7 ms + rerank 1.0 ms (1% rerank)  (+169s)
+  [throughput] 9.00 q/s  (+175s)
+  [brute_force] 1.5% (2.1 min elapsed, 136.3 min left)  (+493s)
+  [brute_force] 2.9% (4.2 min elapsed, 140.7 min left)  (+620s)
+  [brute_force] 4.1% (6.2 min elapsed, 146.5 min left)  (+742s)
+  [brute_force] 5.0% (8.5 min elapsed, 163.0 min left)  (+880s)
+  [brute_force] 6.1% (10.5 min elapsed, 160.6 min left)  (+1001s)
+  [brute_force] 7.0% (12.6 min elapsed, 166.1 min left)  (+1124s)
+  [brute_force] 7.9% (14.7 min elapsed, 170.5 min left)  (+1250s)
+  [brute_force] 9.2% (16.8 min elapsed, 165.6 min left)  (+1378s)
+  [brute_force] 10.6% (18.9 min elapsed, 159.6 min left)  (+1506s)
+  [brute_force] 11.7% (21.0 min elapsed, 158.4 min left)  (+1628s)
+  [brute_force] 13.1% (23.1 min elapsed, 153.4 min left)  (+1754s)
+  [brute_force] 14.5% (25.2 min elapsed, 148.8 min left)  (+1880s)
+  [brute_force] 15.7% (27.3 min elapsed, 147.0 min left)  (+2006s)
+  [brute_force] 16.9% (29.3 min elapsed, 143.9 min left)  (+2130s)
+  [brute_force] 18.4% (31.4 min elapsed, 139.2 min left)  (+2257s)
+  [brute_force] 19.7% (33.5 min elapsed, 136.3 min left)  (+2377s)
+  [brute_force] 20.9% (36.0 min elapsed, 136.2 min left)  (+2530s)
+  [brute_force] 21.9% (38.1 min elapsed, 135.8 min left)  (+2654s)
+  [brute_force] 23.5% (40.1 min elapsed, 130.6 min left)  (+2775s)
+  [brute_force] 25.3% (42.1 min elapsed, 124.6 min left)  (+2897s)
+  [brute_force] 26.0% (44.2 min elapsed, 126.0 min left)  (+3021s)
+  [brute_force] 27.1% (46.4 min elapsed, 124.5 min left)  (+3153s)
+  [brute_force] 28.0% (48.4 min elapsed, 124.2 min left)  (+3274s)
+  [brute_force] 29.7% (50.4 min elapsed, 119.2 min left)  (+3395s)
+  [brute_force] 31.5% (52.5 min elapsed, 114.2 min left)  (+3521s)
+  [brute_force] 33.3% (54.6 min elapsed, 109.5 min left)  (+3647s)
+  [brute_force] 34.6% (57.9 min elapsed, 109.6 min left)  (+3845s)
+  [brute_force] 35.7% (60.2 min elapsed, 108.5 min left)  (+3980s)
+  [brute_force] 37.2% (62.2 min elapsed, 104.7 min left)  (+4100s)
+  [brute_force] 38.9% (64.2 min elapsed, 100.7 min left)  (+4221s)
+  [brute_force] 40.2% (66.4 min elapsed, 98.7 min left)  (+4352s)
+  [brute_force] 41.8% (68.4 min elapsed, 95.3 min left)  (+4476s)
+  [brute_force] 43.0% (70.5 min elapsed, 93.5 min left)  (+4600s)
+  [brute_force] 44.6% (72.6 min elapsed, 90.3 min left)  (+4726s)
+  [brute_force] 46.2% (74.6 min elapsed, 87.1 min left)  (+4849s)
+  [brute_force] 47.7% (76.8 min elapsed, 84.0 min left)  (+4977s)
+  [brute_force] 49.2% (78.9 min elapsed, 81.3 min left)  (+5101s)
+  [brute_force] 50.7% (80.9 min elapsed, 78.6 min left)  (+5222s)
+  [brute_force] 52.4% (82.9 min elapsed, 75.3 min left)  (+5344s)
+  [brute_force] 54.2% (85.0 min elapsed, 71.9 min left)  (+5470s)
+  [brute_force] 55.9% (87.1 min elapsed, 68.8 min left)  (+5597s)
+  [brute_force] 57.5% (89.2 min elapsed, 66.1 min left)  (+5723s)
+  [brute_force] 59.1% (91.2 min elapsed, 63.0 min left)  (+5844s)
+  [brute_force] 60.7% (93.3 min elapsed, 60.3 min left)  (+5968s)
+  [brute_force] 62.4% (95.4 min elapsed, 57.5 min left)  (+6094s)
+  [brute_force] 64.1% (97.5 min elapsed, 54.6 min left)  (+6218s)
+  [brute_force] 65.7% (99.5 min elapsed, 52.0 min left)  (+6339s)
+  [brute_force] 67.4% (101.5 min elapsed, 49.2 min left)  (+6463s)
+  [brute_force] 68.9% (103.7 min elapsed, 46.7 min left)  (+6589s)
+  [brute_force] 70.5% (105.7 min elapsed, 44.2 min left)  (+6711s)
+  [brute_force] 72.0% (107.7 min elapsed, 41.9 min left)  (+6833s)
+  [brute_force] 73.5% (109.8 min elapsed, 39.6 min left)  (+6956s)
+  [brute_force] 75.1% (111.8 min elapsed, 37.1 min left)  (+7079s)
+  [brute_force] 76.6% (113.8 min elapsed, 34.8 min left)  (+7200s)
+  [brute_force] 78.4% (115.9 min elapsed, 32.0 min left)  (+7325s)
+  [brute_force] 79.8% (118.0 min elapsed, 29.8 min left)  (+7449s)
+  [brute_force] 81.6% (120.1 min elapsed, 27.0 min left)  (+7576s)
+  [brute_force] 83.4% (122.2 min elapsed, 24.3 min left)  (+7701s)
+  [brute_force] 85.1% (124.2 min elapsed, 21.8 min left)  (+7821s)
+  [brute_force] 86.9% (126.3 min elapsed, 19.1 min left)  (+7945s)
+  [brute_force] 88.6% (128.3 min elapsed, 16.6 min left)  (+8067s)
+  [brute_force] 90.2% (130.3 min elapsed, 14.1 min left)  (+8188s)
+  [brute_force] 91.8% (132.4 min elapsed, 11.8 min left)  (+8315s)
+  [brute_force] 93.5% (134.4 min elapsed, 9.3 min left)  (+8435s)
+  [brute_force] 95.3% (137.5 min elapsed, 6.8 min left)  (+8622s)
+  [brute_force] 95.5% (139.8 min elapsed, 6.6 min left)  (+8759s)
+  [brute_force] 95.7% (142.1 min elapsed, 6.4 min left)  (+8898s)
+  [brute_force] 95.9% (144.4 min elapsed, 6.2 min left)  (+9031s)
+  [brute_force] 96.6% (146.4 min elapsed, 5.2 min left)  (+9154s)
+  [brute_force] 98.3% (148.4 min elapsed, 2.6 min left)  (+9277s)
+  [brute_force] 100.0% (150.5 min elapsed, 0.1 min left)  (+9398s)
+  [brute_force] 100.0% (150.5 min elapsed, 0.0 min left)  (+9402s)
+  [brute_force_done] 150.5 min for one pass  (+9402s)
+  [ground_truth] saved to /tmp/claude-1000/-home-jeremiah-projects-themisim/bbe00239-81b7-4282-aa06-c03055326155/scratchpad/gt_full_500.npz  (+9403s)
+  [sweep] nprobe=1 prefilter=100 -> recall@10=0.7036 at 135 ms  (+9472s)
+  [sweep] nprobe=1 prefilter=500 -> recall@10=0.8064 at 222 ms  (+9583s)
+  [sweep] nprobe=1 prefilter=1000 -> recall@10=0.8256 at 279 ms  (+9722s)
+  [sweep] nprobe=1 prefilter=2000 -> recall@10=0.8356 at 457 ms  (+9951s)
+  [sweep] nprobe=8 prefilter=100 -> recall@10=0.7970 at 77 ms  (+9989s)
+  [sweep] nprobe=8 prefilter=500 -> recall@10=0.9376 at 130 ms  (+10054s)
+  [sweep] nprobe=8 prefilter=1000 -> recall@10=0.9608 at 182 ms  (+10145s)
+  [sweep] nprobe=8 prefilter=2000 -> recall@10=0.9726 at 344 ms  (+10317s)
+  [sweep] nprobe=32 prefilter=100 -> recall@10=0.7968 at 120 ms  (+10377s)
+  [sweep] nprobe=32 prefilter=500 -> recall@10=0.9374 at 90 ms  (+10422s)
+  [sweep] nprobe=32 prefilter=1000 -> recall@10=0.9608 at 110 ms  (+10477s)
+  [sweep] nprobe=32 prefilter=2000 -> recall@10=0.9732 at 167 ms  (+10560s)
+  [sweep] nprobe=64 prefilter=100 -> recall@10=0.7970 at 123 ms  (+10622s)
+  [sweep] nprobe=64 prefilter=500 -> recall@10=0.9374 at 117 ms  (+10680s)
+  [sweep] nprobe=64 prefilter=1000 -> recall@10=0.9610 at 119 ms  (+10740s)
+  [sweep] nprobe=64 prefilter=2000 -> recall@10=0.9734 at 136 ms  (+10808s)
+  [sweep] nprobe=256 prefilter=100 -> recall@10=0.7970 at 323 ms  (+10969s)
+  [sweep] nprobe=256 prefilter=500 -> recall@10=0.9374 at 310 ms  (+11124s)
+  [sweep] nprobe=256 prefilter=1000 -> recall@10=0.9610 at 311 ms  (+11280s)
+  [sweep] nprobe=256 prefilter=2000 -> recall@10=0.9734 at 322 ms  (+11441s)
+
+==============================================================================
+THEMISim index benchmark — 2026-09-16T14:26:22Z
+==============================================================================
+
+Hardware
+  CPU            Intel(R) Core(TM) i9-9920X CPU @ 3.50GHz (24 logical)
+  RAM            125 GiB
+  FAISS          1.8.0, 12 OMP threads (3 GPUs present, unused — query path is CPU-only)
+
+Storage
+  index.faiss           72.72 GB  SSD  /dev/sdd5        487 MB/s cold seq
+  vectors.f16.dat     1033.72 GB  HDD  /dev/sdb2        213 MB/s cold seq
+  manifest.parquet      12.54 GB  HDD  /dev/sdb2        227 MB/s cold seq
+
+Index
+  factory        OPQ64_64,IVF65536_HNSW32,PQ64x8
+  metric         INNER_PRODUCT on L2-normalized vectors (cosine)
+  vectors        1,009,488,343 x 512-D float16  (64 B/vector PQ codes)
+  nlist          65,536
+
+Operating point
+  k=10  nprobe=64  prefilter=500  diversify_seconds=0
+  cells probed   0.0977% of 65,536
+  rerank         exact fp32 cosine over the prefilter candidates
+
+Engine load (cold)  2.2 s  — one-time, not per query
+
+Latency (full pipeline: index probe + exact fp32 rerank)
+              n     median        p95        p99        max
+  cold       10   417.2 ms   638.6 ms   691.3 ms   704.5 ms
+  warm*      10   130.1 ms   148.3 ms   155.8 ms   157.6 ms
+  warm       50   413.3 ms   744.3 ms     1.17 s     1.35 s
+  * warm* is the same query set as cold — the paired comparison.
+
+Where the time goes (warm, median)
+  index probe      116.7 ms   (p95 155.3 ms)
+  exact rerank       1.0 ms   (p95 1.3 ms)  = 1% of the query
+  rerank candidates land in 173 contiguous id runs spanning 2.2% of the database
+
+Throughput (warm, sequential)  9.00 queries/s  (50 queries in 5.6 s)
+
+Brute-force baseline (exact cosine over every vector)
+  scanned        1,009,488,343 vectors  = 1.034 TB read
+  one full pass  150.53 min  (114 MB/s effective)
+  single query   9032.07 s   (a lone query needs the whole pass)
+  batched        18.06 s/query  over 500 queries sharing one pass  = 0.055 q/s
+
+Speedup of the index over brute force
+  warm single query         21,854x
+  cold single query         21,647x
+  batched throughput           163x
+
+Accuracy vs that exact baseline (n=500)
+  recall@10           0.9374
+  recall p10          0.8000
+  worst query         0.0000
+  exact top-1 match   0.9680
+  top-1 cosine gap    mean 0.000024  worst 0.003716
+
+Operating-point sweep (same exact ground truth, ANN settings varied)
+   nprobe   scanned  prefilter  recall@10    top-1    latency
+        1    0.00%        100     0.7036   0.9100   135.5 ms
+        1    0.00%        500     0.8064   0.9720   222.3 ms
+        1    0.00%       1000     0.8256   0.9800   278.9 ms
+        1    0.00%       2000     0.8356   0.9860   456.6 ms
+        8    0.01%        100     0.7970   0.8900    76.7 ms
+        8    0.01%        500     0.9376   0.9700   129.9 ms
+        8    0.01%       1000     0.9608   0.9760   181.7 ms
+        8    0.01%       2000     0.9726   0.9840   344.1 ms
+       32    0.05%        100     0.7968   0.8900   120.2 ms
+       32    0.05%        500     0.9374   0.9680    90.4 ms
+       32    0.05%       1000     0.9608   0.9760   109.7 ms
+       32    0.05%       2000     0.9732   0.9840   166.7 ms
+       64    0.10%        100     0.7970   0.8900   122.9 ms
+       64    0.10%        500     0.9374   0.9680   117.2 ms
+       64    0.10%       1000     0.9610   0.9760   118.9 ms
+       64    0.10%       2000     0.9734   0.9840   135.6 ms
+      256    0.39%        100     0.7970   0.8900   322.8 ms
+      256    0.39%        500     0.9374   0.9680   310.4 ms
+      256    0.39%       1000     0.9610   0.9760   310.8 ms
+      256    0.39%       2000     0.9734   0.9840   322.4 ms
+
+Wrote /tmp/claude-1000/-home-jeremiah-projects-themisim/bbe00239-81b7-4282-aa06-c03055326155/scratchpad/bench_full_500.json
